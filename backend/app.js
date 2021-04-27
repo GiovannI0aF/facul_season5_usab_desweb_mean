@@ -4,7 +4,7 @@ const bodyParser = require ('body-parser');
 const mongoose = require ('mongoose');
 const Cliente = require ('./models/cliente');
 
-mongoose.connect ('mongodb+srv://userteste:usjt0123@cluster0.pgprl.mongodb.net/app-mean?retryWrites=true&w=majority').then (() => {
+mongoose.connect('mongodb+srv://userteste:usjt0123@cluster0.pgprl.mongodb.net/app-mean?retryWrites=true&w=majority').then (() => {
   console.log("Conexão OK")
 }).catch (() => {
   console.log("Conexão NOK")
@@ -40,9 +40,29 @@ app.post ('/api/clientes', (req, res, next) => {
     fone: req.body.fone,
     email: req.body.email,
   })
-  cliente.save();
-  console.log(cliente);
-  res.status(201).json({mensagem: 'Cliente inserido'})
+  cliente.save().then (clienteInserido => {
+    res.status(201).json({
+      mensagem: 'Cliente inserido',
+      id: clienteInserido._id
+    })
+  })
+});
+
+app.get('/api/clientes', (req, res, next) => {
+  Cliente.find().then(documents => {
+    console.log (documents)
+    res.status(200).json({
+      mensagem: "Tudo OK",
+      clientes: documents
+    });
+  })
+});
+
+app.delete( '/api/clientes/:id', (req, res, next) => {
+  Cliente.deleteOne ({ _id: req.params.id}).then(( resultado) => {
+    console.log (resultado);
+    res.status (200).json ({ mensagem: "Cliente removido"})
+  });
 });
 
 app.use('/api/clientes',(req, res, next) => {
@@ -52,13 +72,5 @@ app.use('/api/clientes',(req, res, next) => {
   });
 });
 
-app.get('/api/clientes', (req, res, next) => {
-  Cliente.find().then(documents => {
-    res.status(200).json({
-      mensagem: "Tudo OK",
-      clientes: documents
-    });
-  })
-});
 
 module.exports = app;
