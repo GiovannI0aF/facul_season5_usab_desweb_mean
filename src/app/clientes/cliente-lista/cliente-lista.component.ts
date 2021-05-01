@@ -12,6 +12,7 @@ export class ClienteListaComponent implements OnInit, OnDestroy {
 
   clientes: Cliente[] = [];
   private clientesSubscription: Subscription;
+  public estaCarregando = false;
 
   constructor(public clienteService: ClienteService) {}
 
@@ -19,6 +20,7 @@ export class ClienteListaComponent implements OnInit, OnDestroy {
     this.clienteService.getClientes();
     this.clientesSubscription= this.clienteService.getListaDeClientesAtualizadaObservable()
     .subscribe((clientes: Cliente[]) => {
+      this.estaCarregando = false;
       this.clientes= clientes;
     });
   }
