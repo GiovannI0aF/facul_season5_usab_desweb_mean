@@ -1,20 +1,48 @@
 const express = require ("express");
-const router = express.Router();
-
-const express = require ("express");
+const multer = require ("multer");
 const router = express.Router();
 const Cliente = require ('../models/cliente');
 
-router.post ("", (req, res, next) => {
+const MIME_TYPE_EXTENSAO_MAPA = {
+  'image/png': 'png',
+  'image/jpeg': 'jgp',
+  'image/jpg': 'jpg',
+  'image/bmp': 'bmp'
+}
+
+const armazenamento = multer.diskStorage({
+  //requisição, arquivo extraido e uma funçõa a ser executada, capaz de indicar um erro ou
+  //devolver o diretório em que as fotos ficarão
+  destination: (req, file, callback) => {
+    let e = MIME_TYPE_EXTENSAO_MAPA[file.mimetype]?null: new Error ('Mime Type Invalido');
+    callback(e, "backend/imagens")
+  },
+  filename: (req, file, callback) => {
+    const nome = file.originalmente.toLowerCase().split("").join("-");
+    const extensao = MIME_TYPE_EXTENSAO_MAPA[file.mimetype];
+    callback(null, `${nome}-${Date.now()}.${extensao}`);
+  }
+})
+
+router.post ("", multer({storage: armazenamento}).single('imagem'), (req, res, next) => {
+  const imageURL = `${req.protocol}://${req.get('host')}`
   const cliente = new Cliente ({
     nome: req.body.nome,
     fone: req.body.fone,
     email: req.body.email,
+    imagemURL: `${imagemURL}/imagens${req.file.filename}`
   })
   cliente.save().then (clienteInserido => {
     res.status(201).json({
       mensagem: 'Cliente inserido',
-      id: clienteInserido._id
+      //id: clienteInserido._id
+      cliente: {
+        id: clienteInserido._id,
+        nome: clienteInserido.nome,
+        fone: clienteInserido.fone,
+        email: clienteInserido.email,
+        imagemURL: clienteInserido.imagemURL
+      }
     })
   })
 });

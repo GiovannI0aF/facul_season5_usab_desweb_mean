@@ -6,6 +6,9 @@
       Nome: {{cliente.nome}}
     </mat-expansion-panel-header>
 
+    <div class="cliente-imagem">
+      <img [src]="cliente.imagemURL" alt="cliente.nome">
+    </div>
     <p> Fone: {{cliente.fone}} </p>
     <hr>
     <p> Email: {{cliente.email}} </p>

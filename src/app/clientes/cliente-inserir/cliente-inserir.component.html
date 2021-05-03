@@ -10,7 +10,11 @@
 
     <div>
       <button mat-stroked-button type="button" (click)="selecionaArquivo.click() "> Selecionar imagem </button>
-      <input type="file" #selecionaArquivo>
+      <input type="file" (change)="onImagemSelecionada($event)" #selecionaArquivo>
+    </div>
+
+    <div class="imagem-preview">
+      <img [src]="previewImagem" *ngIf="previewImagem && previewImagem!=='' && form.get('imagem').valid" [alt]="form.value.nome">
     </div>
 
     <mat-form-field>
