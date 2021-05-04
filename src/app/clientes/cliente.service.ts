@@ -72,14 +72,42 @@ export class ClienteService {
 
   getCliente (idCliente: string) {
     //return { ...this.clientes.find ((cli) => cli.id === idCliente)};
-    return this.httpClient.get <{ _id: string, nome: string, fone: string, email: string}> ('http://localhost:3000/api/clientes/${idCliente}');
+    return this.httpClient.get <{ _id: string, nome: string, fone: string, email: string, imagemURL: string}> ('http://localhost:3000/api/clientes/${idCliente}');
   }
 
-  atualizarCliente (id: string, nome: string, fone: string, email: string) {
-    const cliente: Cliente = { id, nome, fone, email, imagemURL: null};
-    this.httpClient.put('http://localhost:3000/api/clientes/${id}',cliente).subscribe((res =>{
+  atualizarCliente (id: string, nome: string, fone: string, email: string, imagem: File|string) {
+    //const cliente: Cliente = { id, nome, fone, email, imagemURL: null};
+    let clienteData: Cliente| FormData;
+    if (typeof(imagem) === 'object') {// é um arquivo, montar um form data
+      clienteData = new FormData();
+      clienteData.append("id", id);
+      clienteData.append('nome', nome);
+      clienteData.append('fone', fone);
+      clienteData.append("email", email);
+      clienteData.append('imagem', imagem, nome); //chave, foto e nome para o arquivo
+    } else {
+      //enviar JSON comum
+      clienteData = {
+        id: id,
+        nome: nome,
+        fone: fone,
+        email: email,
+        imagemURL: imagem
+      }
+    }
+    console.log (typeof(clienteData));
+
+    this.httpClient.put('http://localhost:3000/api/clientes/${id}',clienteData)
+    .subscribe((res =>{
       const copia = [...this.clientes];
-      const indice = copia.findIndex (cli => cli.id === cliente.id);
+      const indice = copia.findIndex (cli => cli.id === id);
+      const cliente: Cliente = {
+        id: id,
+        nome: nome,
+        fone: fone,
+        email: email,
+        imagemURL: ""
+      }
       copia[indice] = cliente;
       this.clientes = copia;
       this.listaClientesAtualizada.next([...this.clientes]);

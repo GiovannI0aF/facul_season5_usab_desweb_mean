@@ -19,6 +19,7 @@
   </mat-expansion-panel>
 
 </mat-accordion>
+<mat-paginator [length]= "totalDeClientes" [pageSize]= "totalDeClientesPorPagina" ></mat-paginator>
 <p class="mat-body-1" style="text-align: center" *ngIf="clientes.length <=0 && !estaCarregando">
   Nenhum cliente cadastrado
 </p>
