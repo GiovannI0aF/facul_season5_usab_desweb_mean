@@ -15,9 +15,10 @@ export class ClienteService {
 
   }
 
-  getClientes(): void {
+  getClientes(pagesize: number, page: number): void {
+    const parametros = `?pagesize=${pagesize}&page=${page}`;
     this.httpClient.get <{mensagem: string, clientes: any }>
-    ('http://localhost:3000/api/clientes').pipe(map ((dados) => {
+    ('http://localhost:3000/api/clientes' + parametros).pipe(map ((dados) => {
       return dados.clientes.map (cliente => {
         return {
           id: cliente._id,
