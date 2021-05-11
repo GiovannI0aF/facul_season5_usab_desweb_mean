@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Cliente } from '../cliente.model';
 import { ClienteService } from '../cliente.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
+import { UsuarioService } from 'src/app/auth/usuario.service';
 
 @Component({
   selector: 'app-cliente-lista',
@@ -17,8 +18,10 @@ export class ClienteListaComponent implements OnInit, OnDestroy {
   totalDeClientes: number = 0;
   totalDeClientesPorPagina: number = 2;
   opcoesTotalDeClientesPorPagina = [2, 5, 10];
+  public autenticado: boolean = false;
+  private authObserver: Subscription;
 
-  constructor(public clienteService: ClienteService) {}
+  constructor(private clienteService: ClienteService, private usuarioService: UsuarioService) {}
 
   paginaAtual: number= 1; //definir
 
@@ -31,10 +34,13 @@ export class ClienteListaComponent implements OnInit, OnDestroy {
       this.clientes= dados.clientes;
       this.totalDeClientes = dados.maxClientes
     });
+    this.autenticado = this.usuarioService.isAutenticado();
+    this.authObserver = this.usuarioService.getStatusSubject().subscribe((autenticado) => this.autenticado = autenticado)
   }
 
   ngOnDestroy(): void {
     this.clientesSubscription.unsubscribe();
+    this.authObserver.unsubscribe();
   }
 
   onDelete ( id: string): void {
